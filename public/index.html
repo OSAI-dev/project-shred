@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Shred — Meal Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#D32F2F;--red-dark:#B71C1C;--red-dim:rgba(211,47,47,0.1);--red-border:rgba(211,47,47,0.3);
+  --black:#0D0D0D;--black2:#1A1A1A;--black3:#242424;
+  --white:#FFFFFF;--gray:#888;--gray-light:#CCCCCC;--rule:rgba(255,255,255,0.08);
+}
+html,body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:0 24px}
+
+/* HEADER */
+header{border-bottom:1px solid var(--rule);padding:20px 0;position:sticky;top:0;background:var(--black);z-index:100}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.08em}
+.logo span{color:var(--red)}
+.badge{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);border:1px solid var(--red-border);padding:4px 10px}
+
+/* HERO */
+.hero{padding:64px 0 48px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--red);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.eyebrow::after{content:'';display:inline-block;width:40px;height:1px;background:var(--red);opacity:0.5}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,8vw,88px);line-height:0.92;letter-spacing:0.02em;margin-bottom:20px}
+.hero-title span{color:var(--red)}
+.hero-sub{font-size:15px;color:var(--gray);line-height:1.75;max-width:520px;margin-bottom:32px}
+.hero-stats{display:flex;border:1px solid var(--rule)}
+.stat{padding:16px 24px;border-right:1px solid var(--rule);flex:1;text-align:center}
+.stat:last-child{border-right:none}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red);display:block}
+.stat-label{font-size:10px;color:var(--gray);letter-spacing:0.14em;text-transform:uppercase}
+
+/* FORM SECTIONS */
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-label::after{content:'';display:inline-block;width:32px;height:1px;background:var(--red);opacity:0.5}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,4vw,36px);letter-spacing:0.02em;margin-bottom:6px}
+.form-section{padding:48px 0;border-bottom:1px solid var(--rule)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+.form-grid.single{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:7px}
+.field-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-light)}
+.field input,.field select,.field textarea{
+  background:var(--black2);border:1px solid rgba(255,255,255,0.1);color:var(--white);
+  padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;border-radius:0;transition:border-color 0.2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}
+.field input::placeholder,.field textarea::placeholder{color:var(--gray)}
+.field select option{background:var(--black2)}
+.field textarea{resize:vertical;min-height:80px}
+select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+/* GOAL CARDS */
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+.goal-card{border:1px solid rgba(255,255,255,0.1);padding:22px;cursor:pointer;transition:all 0.15s;background:var(--black2);position:relative}
+.goal-card:hover{border-color:rgba(211,47,47,0.4)}
+.goal-card.selected{border-color:var(--red);background:var(--red-dim)}
+.goal-card.selected::after{content:'✓';position:absolute;top:14px;right:16px;color:var(--red);font-weight:700;font-size:14px}
+.goal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.04em;margin-bottom:6px}
+.goal-desc{font-size:12px;color:var(--gray);line-height:1.6}
+
+/* NUTRITION TARGETS CARD */
+.targets-card{background:var(--black2);border:1px solid var(--red-border);padding:28px;margin-top:28px}
+.targets-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.targets-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.04em}
+.targets-source{font-size:11px;color:var(--gray);letter-spacing:0.06em}
+.targets-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:20px}
+.target-cell{background:var(--black);padding:16px 12px;text-align:center}
+.target-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--red);display:block;line-height:1}
+.target-lbl{font-size:10px;color:var(--gray);letter-spacing:0.12em;text-transform:uppercase;margin-top:4px;display:block}
+.targets-override-label{font-size:11px;color:var(--gray);margin-bottom:12px}
+.override-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.override-field input{background:var(--black3);border:1px solid rgba(255,255,255,0.08);color:var(--white);padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;width:100%;border-radius:0;text-align:center;transition:border-color 0.2s}
+.override-field input:focus{border-color:var(--red)}
+.override-field input::placeholder{color:rgba(255,255,255,0.2);font-size:11px}
+.override-lbl{font-size:10px;color:var(--gray);text-align:center;margin-bottom:5px;letter-spacing:0.08em;text-transform:uppercase}
+.targets-empty{color:var(--gray);font-size:13px;padding:20px 0;text-align:center}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 32px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all 0.15s;border-radius:0}
+.btn-primary{background:var(--red);color:var(--white)}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,0.2)}
+.btn-ghost:hover{border-color:var(--white)}
+.btn-full{width:100%;padding:18px}
+.error-bar{padding:12px 16px;border-left:3px solid var(--red);background:var(--red-dim);color:#FF6B6B;font-size:13px;margin-bottom:20px}
+
+/* PLAN VIEW */
+.plan-header{padding:40px 0 32px;border-bottom:1px solid var(--rule)}
+.plan-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:24px}
+.meta-cell{background:var(--black);padding:14px 16px;text-align:center}
+.meta-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);display:block}
+.meta-lbl{font-size:10px;color:var(--gray);letter-spacing:0.12em;text-transform:uppercase}
+.plan-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+
+/* WEEK TABS */
+.week-tabs{display:flex;gap:4px;margin:32px 0 20px;border-bottom:1px solid var(--rule)}
+.week-tab{padding:10px 20px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;color:var(--gray);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s}
+.week-tab:hover{color:var(--white)}
+.week-tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* DAY ACCORDION */
+.day-block{border:1px solid var(--rule);margin-bottom:6px;background:var(--black2)}
+.day-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;transition:background 0.15s;user-select:none}
+.day-header:hover,.day-header.open{background:var(--black3)}
+.day-header.open{border-bottom:1px solid var(--rule)}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.04em}
+.day-meta-row{display:flex;gap:20px;align-items:center}
+.day-total{font-size:12px;color:var(--gray)}
+.day-total strong{color:var(--white);font-size:14px}
+.day-chevron{font-size:18px;color:var(--red);transition:transform 0.2s;flex-shrink:0;margin-left:12px}
+.day-chevron.open{transform:rotate(180deg)}
+.day-body{padding:0 16px 16px;display:none}
+.day-body.open{display:block}
+
+/* MEAL CARD */
+.meal-card{border:1px solid var(--rule);margin-top:10px;background:var(--black)}
+.meal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer}
+.meal-header:hover{background:rgba(255,255,255,0.02)}
+.meal-type{font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--red);margin-bottom:3px}
+.meal-dish{font-size:15px;font-weight:600;color:var(--white)}
+.meal-cals-num{font-size:16px;font-weight:700;color:var(--white);text-align:right}
+.meal-cals-lbl{font-size:10px;color:var(--gray);text-align:right}
+.meal-chevron{font-size:14px;color:var(--gray);margin-left:12px;transition:transform 0.2s}
+.meal-chevron.open{transform:rotate(180deg)}
+.meal-detail{display:none;padding:0 16px 16px;border-top:1px solid var(--rule)}
+.meal-detail.open{display:block}
+.macro-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.macro-box{background:var(--black2);border-left:2px solid var(--red);padding:10px 12px}
+.macro-label{font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px}
+.macro-val{font-size:16px;font-weight:700;color:var(--white)}
+.detail-section{margin-top:14px}
+.detail-title{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray-light);margin-bottom:8px}
+.ing-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.ing-list li{font-size:13px;color:var(--gray);padding:4px 0;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px}
+.ing-list li::before{content:'';display:inline-block;width:4px;height:4px;background:var(--red);border-radius:50%;flex-shrink:0}
+.prep-note{font-size:13px;color:var(--gray);line-height:1.7;padding:12px;background:var(--black2);border-left:2px solid var(--rule)}
+
+/* SHOPPING */
+.shopping-section{padding:32px 0;border-top:1px solid var(--rule)}
+.shopping-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;margin-top:20px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--gray)}
+.shop-check{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;cursor:pointer;transition:all 0.15s}
+.shop-check.checked{background:var(--red);border-color:var(--red)}
+
+/* TIPS */
+.tips-section{margin:0 0 32px;padding:20px 24px;background:var(--red-dim);border-left:3px solid var(--red)}
+.tip-item{font-size:13px;color:var(--gray-light);line-height:1.8;display:flex;gap:10px;margin-bottom:4px}
+.tip-item::before{content:'→';color:var(--red);flex-shrink:0;font-weight:700}
+
+/* EDIT */
+.edit-section{padding:32px 0;border-top:1px solid var(--rule)}
+.chat-history{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:260px;overflow-y:auto}
+.chat-msg{padding:10px 14px;font-size:13px;line-height:1.6;max-width:85%}
+.chat-msg.user{background:var(--red-dim);border-left:2px solid var(--red);color:var(--white);align-self:flex-end}
+.chat-msg.assistant{background:var(--black2);border-left:2px solid var(--rule);color:var(--gray-light);align-self:flex-start}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;background:var(--black2);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;border-radius:0}
+.chat-input:focus{border-color:var(--red)}
+.chat-input::placeholder{color:var(--gray)}
+
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:24px}
+.loading-overlay.active{display:flex}
+.loading-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.04em}
+.loading-sub{font-size:13px;color:var(--gray);letter-spacing:0.08em;max-width:320px;line-height:1.7}
+.loading-bar{width:240px;height:2px;background:var(--black3);overflow:hidden;margin-top:8px}
+.loading-fill{height:100%;background:var(--red);animation:load 2s ease-in-out infinite}
+@keyframes load{0%{width:0;margin-left:0}50%{width:60%;margin-left:0}100%{width:0;margin-left:100%}}
+
+/* PRINT */
+@media print{
+  header,.hero,.plan-actions,.edit-section,.week-tabs,.no-print{display:none!important}
+  .day-body,.meal-detail,.week-panel{display:block!important}
+  body{background:white;color:black}
+  .day-block,.meal-card{break-inside:avoid;border-color:#ddd}
+  .macro-box{background:#f5f5f5}
+  .meal-type{color:#D32F2F}
+}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .goal-grid{grid-template-columns:1fr}
+  .targets-grid,.override-grid{grid-template-columns:1fr 1fr}
+  .hero-stats{flex-wrap:wrap}
+  .stat{min-width:50%}
+  .plan-meta{grid-template-columns:1fr 1fr}
+  .shopping-grid{grid-template-columns:1fr}
+  .day-meta-row{display:none}
+  .week-tab{padding:10px 12px;font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-title">BUILDING YOUR 30-DAY PLAN</div>
+  <div class="loading-sub">Building your plan week by week — this takes about 60 seconds. Don't close this page.</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">PROJECT <span>SHRED</span></div>
+      <div class="badge">Meal Planner</div>
+    </div>
+  </div>
+</header>
+
+<div id="formView">
+  <div class="container">
+
+    <div class="hero">
+      <div class="eyebrow">Personalized Nutrition</div>
+      <h1 class="hero-title">YOUR CUSTOM<br><span>30-DAY</span><br>MEAL PLAN.</h1>
+      <p class="hero-sub">Fill in your details and get a full 30-day meal plan — 4 weeks of meals, every macro calculated, fully personalized to your goal and your body.</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">30</span><span class="stat-label">Day Plan</span></div>
+        <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Edits</span></div>
+        <div class="stat"><span class="stat-num">PDF</span><span class="stat-label">Download</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: GOAL -->
+    <div class="form-section">
+      <div class="section-label">Step 1</div>
+      <div class="section-title">Your Goal</div>
+      <div class="goal-grid">
+        <div class="goal-card selected" data-goal="fat_loss" onclick="selectGoal(this)">
+          <div class="goal-title">Fat Loss</div>
+          <div class="goal-desc">Lose body fat while protecting muscle. Calculated caloric deficit with high protein.</div>
+        </div>
+        <div class="goal-card" data-goal="muscle_building" onclick="selectGoal(this)">
+          <div class="goal-title">Muscle Building</div>
+          <div class="goal-desc">Build lean muscle mass. Controlled caloric surplus with optimized protein and carb timing.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: ABOUT YOU -->
+    <div class="form-section">
+      <div class="section-label">Step 2</div>
+      <div class="section-title">About You</div>
+      <p style="font-size:13px;color:var(--gray);margin-top:6px">Your stats are used to calculate your exact daily targets below.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label">First Name</label>
+          <input type="text" id="f_name" placeholder="e.g. Alex">
+        </div>
+        <div class="field">
+          <label class="field-label">Age *</label>
+          <input type="number" id="f_age" placeholder="e.g. 28" oninput="recalcTargets()">
+        </div>
+        <div class="field">
+          <label class="field-label">Gender *</label>
+          <select id="f_gender" onchange="recalcTargets()">
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Weight * (lbs or kg)</label>
+          <input type="text" id="f_weight" placeholder="e.g. 185 lbs or 84 kg" oninput="recalcTargets()">
+        </div>
+        <div class="field">
+          <label class="field-label">Height * (ft/in or cm)</label>
+          <input type="text" id="f_height" placeholder="e.g. 5'11 or 180cm" oninput="recalcTargets()">
+        </div>
+        <div class="field">
+          <label class="field-label">Activity Level *</label>
+          <select id="f_activity" onchange="recalcTargets()">
+            <option value="">Select</option>
+            <option value="1.2">Sedentary — desk job, minimal exercise</option>
+            <option value="1.375">Lightly active — 1-2 workouts/week</option>
+            <option value="1.55">Moderately active — 3-4 workouts/week</option>
+            <option value="1.725">Very active — 5-6 workouts/week</option>
+            <option value="1.9">Athlete — training twice daily</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: FOOD PREFERENCES -->
+    <div class="form-section">
+      <div class="section-label">Step 3</div>
+      <div class="section-title">Food Preferences</div>
+      <div class="form-grid" style="margin-top:28px">
+        <div class="field">
+          <label class="field-label">Max Cook Time Per Meal</label>
+          <select id="f_cooktime">
+            <option value="">No preference</option>
+            <option value="10 minutes">10 minutes — quick/meal prep</option>
+            <option value="20 minutes">20 minutes</option>
+            <option value="30 minutes">30 minutes</option>
+            <option value="45 minutes">45 minutes</option>
+            <option value="60 minutes">1 hour — I enjoy cooking</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Dietary Style</label>
+          <select id="f_diet">
+            <option value="">No restrictions</option>
+            <option value="omnivore">Omnivore</option>
+            <option value="animal based">Animal Based</option>
+            <option value="whole food based">Whole Food Based</option>
+            <option value="pescatarian">Pescatarian</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="keto">Keto / Low Carb</option>
+            <option value="paleo">Paleo</option>
+            <option value="mediterranean">Mediterranean</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid single" style="margin-top:20px">
+        <div class="field">
+          <label class="field-label">Allergies / Intolerances</label>
+          <input type="text" id="f_allergies" placeholder="e.g. dairy, gluten, tree nuts — or leave blank">
+        </div>
+        <div class="field">
+          <label class="field-label">Foods You Dislike</label>
+          <input type="text" id="f_dislikes" placeholder="e.g. broccoli, salmon, cottage cheese — or leave blank">
+        </div>
+        <div class="field">
+          <label class="field-label">Foods You Love</label>
+          <input type="text" id="f_loves" placeholder="e.g. chicken, rice, avocado, Greek yogurt — or leave blank">
+        </div>
+        <div class="field">
+          <label class="field-label">Anything else we should know</label>
+          <textarea id="f_notes" placeholder="e.g. I meal prep on Sundays, I train early mornings, I need quick breakfasts..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: NUTRITION TARGETS (auto-calculated) -->
+    <div class="form-section">
+      <div class="section-label">Step 4</div>
+      <div class="section-title">Your Daily Targets</div>
+      <p style="font-size:13px;color:var(--gray);margin-top:6px;margin-bottom:28px">Calculated from your stats using the Mifflin-St Jeor equation — the gold standard used by sports dietitians. Override any value below if you have specific targets.</p>
+
+      <div id="targetsEmpty" style="display:block">
+        <div style="padding:20px;background:var(--black2);border:1px solid var(--rule);color:var(--gray);font-size:13px;text-align:center">
+          Complete Step 2 to see your calculated targets.
+        </div>
+      </div>
+
+      <div id="targetsCard" class="targets-card" style="display:none">
+        <div class="targets-header">
+          <div>
+            <div class="targets-title" id="targetsTitle">YOUR DAILY TARGETS</div>
+            <div class="targets-source" id="targetsSource"></div>
+          </div>
+          <div style="font-size:11px;color:var(--red);font-weight:600;letter-spacing:0.06em" id="tdeeDisplay"></div>
+        </div>
+
+        <div class="targets-grid">
+          <div class="target-cell">
+            <span class="target-val" id="tCalDisplay">—</span>
+            <span class="target-lbl">Calories</span>
+          </div>
+          <div class="target-cell">
+            <span class="target-val" id="tProDisplay">—</span>
+            <span class="target-lbl">Protein</span>
+          </div>
+          <div class="target-cell">
+            <span class="target-val" id="tCarbDisplay">—</span>
+            <span class="target-lbl">Carbs</span>
+          </div>
+          <div class="target-cell">
+            <span class="target-val" id="tFatDisplay">—</span>
+            <span class="target-lbl">Fat</span>
+          </div>
+        </div>
+
+        <div class="targets-override-label">Override any target — leave as-is to use the calculated values above.</div>
+        <div class="override-grid">
+          <div class="override-field">
+            <div class="override-lbl">Calories</div>
+            <input type="number" id="ov_calories" placeholder="kcal">
+          </div>
+          <div class="override-field">
+            <div class="override-lbl">Protein (g)</div>
+            <input type="number" id="ov_protein" placeholder="g">
+          </div>
+          <div class="override-field">
+            <div class="override-lbl">Carbs (g)</div>
+            <input type="number" id="ov_carbs" placeholder="g">
+          </div>
+          <div class="override-field">
+            <div class="override-lbl">Fat (g)</div>
+            <input type="number" id="ov_fat" placeholder="g">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="formError" class="error-bar" style="display:none"></div>
+
+    <div style="padding-bottom:60px">
+      <button class="btn btn-primary btn-full" id="generateBtn" onclick="generatePlan()">
+        GENERATE MY 30-DAY PLAN &nbsp;→
+      </button>
+      <p style="font-size:12px;color:var(--gray);text-align:center;margin-top:12px">Takes about 30 seconds. Fully personalized.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- PLAN VIEW -->
+<div id="planView" style="display:none">
+  <div class="container">
+    <div class="plan-header">
+      <div class="section-label">Your Plan</div>
+      <div class="section-title">30-DAY MEAL PLAN</div>
+      <div style="font-size:13px;color:var(--gray);margin-top:4px" id="planSubtitle"></div>
+      <div class="plan-meta" id="planMeta"></div>
+      <div class="plan-actions no-print">
+        <button class="btn btn-ghost" onclick="backToForm()">← Edit Profile</button>
+        <button class="btn btn-primary" onclick="window.print()">↓ Download PDF</button>
+      </div>
+    </div>
+
+    <div class="week-tabs no-print" id="weekTabs"></div>
+    <div id="weekPanels"></div>
+
+    <div class="shopping-section">
+      <div class="section-label">Shopping List</div>
+      <div class="section-title">WEEKLY GROCERIES</div>
+      <p style="font-size:13px;color:var(--gray);margin:8px 0 16px">Repeatable weekly shop — covers all 4 weeks.</p>
+      <div class="shopping-grid" id="shoppingGrid"></div>
+    </div>
+
+    <div class="tips-section" id="tipsSection" style="display:none"></div>
+
+    <div class="edit-section no-print">
+      <div class="section-label">Request Changes</div>
+      <div class="section-title">EDIT YOUR PLAN</div>
+      <p style="font-size:13px;color:var(--gray);margin:8px 0 20px;line-height:1.7">Swap a meal, adjust portions, replace an ingredient, or change a full week. Just tell us what you want.</p>
+      <div class="chat-history" id="chatHistory"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="editInput" placeholder='e.g. "Replace all chicken with turkey" or "Week 2 needs more variety"' onkeydown="if(event.key==='Enter')sendEdit()">
+        <button class="btn btn-primary" id="editBtn" onclick="sendEdit()">UPDATE</button>
+      </div>
+    </div>
+
+    <div style="padding-bottom:60px;margin-top:16px" class="no-print">
+      <button class="btn btn-primary btn-full" onclick="window.print()">↓ DOWNLOAD AS PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPlan = null;
+let userProfile = {};
+let selectedGoal = 'fat_loss';
+let editMessages = [];
+let calcTargets = { calories: 0, protein: 0, carbs: 0, fat: 0, tdee: 0 };
+
+const API = '/api/claude';
+function g(id){return document.getElementById(id)}
+
+function selectGoal(el) {
+  document.querySelectorAll('.goal-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedGoal = el.dataset.goal;
+  recalcTargets();
+}
+
+// ── TDEE / MACRO CALCULATOR ──────────────────────────────────────────
+function parseWeight(str) {
+  if (!str) return null;
+  str = str.toLowerCase().trim();
+  const kg = str.match(/([0-9.]+)\s*kg/);
+  if (kg) return parseFloat(kg[1]);
+  const lbs = str.match(/([0-9.]+)\s*(lb|lbs|pound)?/);
+  if (lbs) return parseFloat(lbs[1]) * 0.453592;
+  return null;
+}
+
+function parseHeight(str) {
+  if (!str) return null;
+  str = str.toLowerCase().trim();
+  const cm = str.match(/([0-9.]+)\s*cm/);
+  if (cm) return parseFloat(cm[1]);
+  const ft = str.match(/(\d+)[''`]?\s*(\d+)?[""'`]?/);
+  if (ft) {
+    const feet = parseInt(ft[1]) || 0;
+    const inches = parseInt(ft[2]) || 0;
+    return (feet * 12 + inches) * 2.54;
+  }
+  return null;
+}
+
+function recalcTargets() {
+  const age = parseInt(g('f_age').value);
+  const gender = g('f_gender').value;
+  const weightRaw = g('f_weight').value;
+  const heightRaw = g('f_height').value;
+  const activityMult = parseFloat(g('f_activity').value);
+
+  if (!age || !gender || !weightRaw || !heightRaw || !activityMult) {
+    g('targetsEmpty').style.display = 'block';
+    g('targetsCard').style.display = 'none';
+    return;
+  }
+
+  const weightKg = parseWeight(weightRaw);
+  const heightCm = parseHeight(heightRaw);
+
+  if (!weightKg || !heightCm) {
+    g('targetsEmpty').style.display = 'block';
+    g('targetsCard').style.display = 'none';
+    return;
+  }
+
+  // Mifflin-St Jeor BMR
+  let bmr;
+  if (gender === 'male') {
+    bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5;
+  } else {
+    bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
+  }
+
+  const tdee = Math.round(bmr * activityMult);
+
+  // Apply goal adjustment
+  let targetCals;
+  if (selectedGoal === 'fat_loss') {
+    targetCals = Math.round(tdee - 400);
+  } else {
+    targetCals = Math.round(tdee + 250);
+  }
+
+  // Macros
+  const weightLbs = weightKg / 0.453592;
+  const protein = Math.round(weightLbs * 1.0); // 1g per lb bodyweight
+  const fatCals = Math.round(targetCals * 0.25);
+  const fat = Math.round(fatCals / 9);
+  const remainingCals = targetCals - (protein * 4) - fatCals;
+  const carbs = Math.round(remainingCals / 4);
+
+  calcTargets = { calories: targetCals, protein, carbs: Math.max(carbs, 50), fat, tdee };
+
+  // Update display
+  g('tCalDisplay').textContent = targetCals + ' kcal';
+  g('tProDisplay').textContent = protein + 'g';
+  g('tCarbDisplay').textContent = Math.max(carbs, 50) + 'g';
+  g('tFatDisplay').textContent = fat + 'g';
+  g('tdeeDisplay').textContent = 'MAINTENANCE: ' + tdee + ' KCAL';
+
+  const goalLabel = selectedGoal === 'fat_loss' ? 'Fat Loss' : 'Muscle Building';
+  const adjustment = selectedGoal === 'fat_loss' ? '400 kcal deficit' : '250 kcal surplus';
+  g('targetsSource').textContent = 'Mifflin-St Jeor · ' + goalLabel + ' · ' + adjustment + ' from TDEE';
+  g('targetsTitle').textContent = 'YOUR ' + goalLabel.toUpperCase() + ' TARGETS';
+
+  g('targetsEmpty').style.display = 'none';
+  g('targetsCard').style.display = 'block';
+}
+
+// ── GENERATE ─────────────────────────────────────────────────────────
+function showError(msg){const el=g('formError');el.textContent=msg;el.style.display='block'}
+function hideError(){g('formError').style.display='none'}
+function setLoading(on){g('loadingOverlay').classList.toggle('active',on)}
+
+async function callClaude(system, messages) {
+  const res = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system,messages})
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
+  if (!data.content) throw new Error('No response from server. Check API key.');
+  const raw = data.content?.[0]?.text || '';
+  // Extract JSON - find first { and last } to handle any surrounding text
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('No JSON found in response');
+  const jsonStr = raw.slice(start, end + 1);
+  return JSON.parse(jsonStr);
+}
+
+async function generatePlan() {
+  hideError();
+  const age = g('f_age').value.trim();
+  const gender = g('f_gender').value;
+  const weight = g('f_weight').value.trim();
+  const height = g('f_height').value.trim();
+  const activity = g('f_activity').value;
+
+  if (!age || !gender || !weight || !height || !activity) {
+    showError('Please complete Step 2 — all fields are required to calculate your targets.');
+    return;
+  }
+  if (calcTargets.calories === 0) {
+    showError('Your nutrition targets could not be calculated. Please check your stats in Step 2.');
+    return;
+  }
+
+  const finalCals = parseInt(g('ov_calories').value) || calcTargets.calories;
+  const finalPro  = parseInt(g('ov_protein').value)  || calcTargets.protein;
+  const finalCarb = parseInt(g('ov_carbs').value)    || calcTargets.carbs;
+  const finalFat  = parseInt(g('ov_fat').value)      || calcTargets.fat;
+  const goalLabel = selectedGoal === 'fat_loss' ? 'Fat Loss' : 'Muscle Building';
+
+  userProfile = {
+    name: g('f_name').value.trim() || 'Member',
+    age, gender, weight, height,
+    activity: g('f_activity').options[g('f_activity').selectedIndex].text,
+    goal: selectedGoal, goalLabel,
+    calories: finalCals, protein: finalPro, carbs: finalCarb, fat: finalFat,
+    tdee: calcTargets.tdee,
+    cooktime: g('f_cooktime').value,
+    diet: g('f_diet').value,
+    allergies: g('f_allergies').value.trim(),
+    dislikes: g('f_dislikes').value.trim(),
+    loves: g('f_loves').value.trim(),
+    notes: g('f_notes').value.trim(),
+  };
+
+  setLoading(true);
+
+  const goalInstructions = selectedGoal === 'fat_loss'
+    ? `Goal: FAT LOSS. Daily target is ${finalCals} kcal (${calcTargets.tdee - finalCals} kcal below maintenance). Keep meals filling and satisfying. Prioritize high volume, high protein foods.`
+    : `Goal: MUSCLE BUILDING. Daily target is ${finalCals} kcal (${finalCals - calcTargets.tdee} kcal above maintenance). Time carbs around training days. Prioritize nutrient density and recovery foods.`;
+
+  const mealsPerDay = finalCals < 1800 ? 3 : finalCals < 2300 ? 4 : 5;
+
+  const p = userProfile;
+  const profileLine = `Name: ${p.name} | Age: ${p.age} | Gender: ${p.gender} | Weight: ${p.weight} | Height: ${p.height} | Activity: ${p.activity} | Goal: ${goalLabel} | Daily targets: ${finalCals} kcal, ${finalPro}g protein, ${finalCarb}g carbs, ${finalFat}g fat | Meals per day: ${mealsPerDay} | Cook time: ${p.cooktime||'no preference'} | Diet: ${p.diet||'no restrictions'} | Allergies: ${p.allergies||'none'} | Dislikes: ${p.dislikes||'none'} | Loves: ${p.loves||'none'} | Notes: ${p.notes||'none'}`;
+
+  const weekThemes = [
+    'Week 1 — Foundation: Simple, practical meals establishing the core pattern.',
+    'Week 2 — Build: Variations on Week 1 meals with different proteins and flavour profiles.',
+    'Week 3 — Variety: Introduce new dishes and cuisines while keeping macros identical.',
+    'Week 4 — Peak: The best-performing meals from previous weeks, refined.',
+  ];
+
+  const system = `You are an elite sports nutritionist for Project Shred. ${goalInstructions}
+
+Daily macro targets to hit within 5%: ${finalCals} kcal | ${finalPro}g protein | ${finalCarb}g carbs | ${finalFat}g fat. Use ${mealsPerDay} meals per day.
+
+You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no explanation, no trailing commas. Start your response with { and end with }. Valid JSON only:
+{
+  "week_number": 1,
+  "week_label": "Week 1 — Foundation",
+  "days": [
+    {
+      "day_name": "Day 1 — Monday",
+      "meals": [
+        {
+          "meal_name": "Breakfast",
+          "dish": "Dish name",
+          "calories": "480 kcal",
+          "protein": "42g",
+          "carbs": "38g",
+          "fat": "14g",
+          "ingredients": ["200g chicken breast", "1 cup oats"],
+          "prep": "One sentence prep tip."
+        }
+      ],
+      "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
+    }
+  ]
+}
+Include all 7 days. No duplicate dishes across consecutive days.`;
+
+  try {
+    const weeks = [];
+    for (let w = 0; w < 4; w++) {
+      const dayOffset = w * 7;
+      const prevMeals = w > 0 ? `Meals already used in previous weeks: ${weeks.flatMap(wk => wk.days.flatMap(d => d.meals.map(m => m.dish))).join(', ')}. Do not repeat these.` : '';
+      const userMsg = `${profileLine}\n\n${weekThemes[w]}\n\nLabel days Day ${dayOffset+1} through Day ${dayOffset+7} with weekday names (Monday–Sunday).\n${prevMeals}`;
+      const week = await callClaude(system, [{role:'user', content: userMsg}]);
+      weeks.push(week);
+    }
+
+    // Final call for shopping list and tips
+    const shoppingSystem = `You are a sports nutritionist. Based on the meal plan provided, return ONLY a raw JSON object. No markdown, no backticks. Start with { end with }:
+{"shopping_list": ["item 1", "item 2"], "tips": ["tip 1", "tip 2", "tip 3"]}`;
+    const allDishes = weeks.flatMap(w => w.days.flatMap(d => d.meals.map(m => m.dish))).slice(0, 30).join(', ');
+    const extras = await callClaude(shoppingSystem, [{role:'user', content:`Meal plan dishes: ${allDishes}. Diet: ${p.diet||'none'}. Allergies: ${p.allergies||'none'}. Goal: ${goalLabel}.`}]);
+
+    currentPlan = {
+      meals_per_day: mealsPerDay,
+      weeks,
+      shopping_list: extras.shopping_list || [],
+      tips: extras.tips || [],
+    };
+
+    editMessages = [];
+    renderPlan(currentPlan);
+    g('formView').style.display = 'none';
+    g('planView').style.display = 'block';
+    window.scrollTo(0, 0);
+  } catch(e) {
+    showError(typeof e === 'string' ? e : (e.message || 'Something went wrong. Please try again.'));
+    console.error(e);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────
+function renderPlan(plan) {
+  const p = userProfile;
+  g('planMeta').innerHTML = `
+    <div class="meta-cell"><span class="meta-val">${p.calories} kcal</span><span class="meta-lbl">Daily Calories</span></div>
+    <div class="meta-cell"><span class="meta-val">${p.protein}g</span><span class="meta-lbl">Protein</span></div>
+    <div class="meta-cell"><span class="meta-val">${p.carbs}g</span><span class="meta-lbl">Carbs</span></div>
+    <div class="meta-cell"><span class="meta-val">${p.fat}g</span><span class="meta-lbl">Fat</span></div>
+  `;
+  g('planSubtitle').textContent = `Built for ${p.name} · ${p.goalLabel} · ${plan.meals_per_day||'—'} meals/day · 30 days`;
+
+  const tabsEl = g('weekTabs');
+  const panelsEl = g('weekPanels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  (plan.weeks||[]).forEach((week,wi) => {
+    const tab = document.createElement('div');
+    tab.className = `week-tab${wi===0?' active':''}`;
+    tab.textContent = week.week_label || `Week ${week.week_number}`;
+    tab.onclick = () => switchWeek(wi);
+    tab.id = `tab-${wi}`;
+    tabsEl.appendChild(tab);
+
+    const panel = document.createElement('div');
+    panel.id = `panel-${wi}`;
+    panel.className = 'week-panel';
+    panel.style.display = wi===0 ? 'block' : 'none';
+
+    (week.days||[]).forEach((day,di) => {
+      const dayId = `w${wi}d${di}`;
+      const isFirst = di===0 && wi===0;
+      const totals = day.daily_totals||{};
+      const dayEl = document.createElement('div');
+      dayEl.className = 'day-block';
+      dayEl.innerHTML = `
+        <div class="day-header${isFirst?' open':''}" onclick="toggleDay('${dayId}',this)">
+          <div class="day-name">${day.day_name}</div>
+          <div style="display:flex;align-items:center">
+            <div class="day-meta-row">
+              <div class="day-total"><strong>${totals.calories||'—'}</strong> kcal</div>
+              <div class="day-total"><strong>${totals.protein||'—'}</strong> protein</div>
+            </div>
+            <div class="day-chevron${isFirst?' open':''}">▾</div>
+          </div>
+        </div>
+        <div class="day-body${isFirst?' open':''}" id="${dayId}">
+          ${(day.meals||[]).map((m,mi)=>renderMeal(m,`${dayId}m${mi}`)).join('')}
+        </div>`;
+      panel.appendChild(dayEl);
+    });
+    panelsEl.appendChild(panel);
+  });
+
+  const sg = g('shoppingGrid');
+  sg.innerHTML = '';
+  (plan.shopping_list||[]).forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'shop-item';
+    d.innerHTML = `<div class="shop-check" onclick="this.classList.toggle('checked')"></div><span>${item}</span>`;
+    sg.appendChild(d);
+  });
+
+  const ts = g('tipsSection');
+  if (plan.tips&&plan.tips.length) {
+    ts.innerHTML = `<div class="section-label" style="margin-bottom:12px">Coach Notes</div>${plan.tips.map(t=>`<div class="tip-item">${t}</div>`).join('')}`;
+    ts.style.display = 'block';
+  } else { ts.style.display = 'none'; }
+}
+
+function switchWeek(wi) {
+  document.querySelectorAll('.week-tab').forEach((t,i)=>t.classList.toggle('active',i===wi));
+  document.querySelectorAll('.week-panel').forEach((p,i)=>p.style.display=i===wi?'block':'none');
+}
+
+function renderMeal(meal,id) {
+  return `<div class="meal-card">
+    <div class="meal-header" onclick="toggleMeal('${id}')">
+      <div><div class="meal-type">${meal.meal_name}</div><div class="meal-dish">${meal.dish}</div></div>
+      <div style="display:flex;align-items:center">
+        <div><div class="meal-cals-num">${meal.calories}</div><div class="meal-cals-lbl">calories</div></div>
+        <div class="meal-chevron" id="chev-${id}">▾</div>
+      </div>
+    </div>
+    <div class="meal-detail" id="detail-${id}">
+      <div class="macro-row">
+        <div class="macro-box"><div class="macro-label">Protein</div><div class="macro-val">${meal.protein}</div></div>
+        <div class="macro-box"><div class="macro-label">Carbs</div><div class="macro-val">${meal.carbs}</div></div>
+        <div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">${meal.fat}</div></div>
+      </div>
+      ${meal.ingredients&&meal.ingredients.length?`<div class="detail-section"><div class="detail-title">Ingredients</div><ul class="ing-list">${meal.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul></div>`:''}
+      ${meal.prep?`<div class="detail-section"><div class="detail-title">Prep Notes</div><div class="prep-note">${meal.prep}</div></div>`:''}
+    </div>
+  </div>`;
+}
+
+function toggleDay(id,header) {
+  const body=g(id),chev=header.querySelector('.day-chevron'),open=body.classList.contains('open');
+  body.classList.toggle('open',!open);chev.classList.toggle('open',!open);header.classList.toggle('open',!open);
+}
+function toggleMeal(id) {
+  const d=g('detail-'+id),c=g('chev-'+id),open=d.classList.contains('open');
+  d.classList.toggle('open',!open);c.classList.toggle('open',!open);
+}
+
+async function sendEdit() {
+  const input=g('editInput'),msg=input.value.trim();
+  if(!msg||!currentPlan) return;
+  input.value='';
+  g('editBtn').disabled=true;g('editBtn').textContent='...';
+  addChat('user',msg);
+  editMessages.push({role:'user',content:msg});
+
+  const p = userProfile;
+  const system=`You are an elite sports nutritionist for Project Shred. The user has a 30-day meal plan and wants changes. Apply them and return the COMPLETE updated plan as valid JSON only — same structure, all 4 weeks. No text outside the JSON.`;
+  const messages=[
+    {role:'user',content:`Current plan:\n${JSON.stringify(currentPlan)}\n\nTargets: ${p.calories} kcal, ${p.protein}g protein, ${p.carbs}g carbs, ${p.fat}g fat. Goal: ${p.goalLabel}.`},
+    {role:'assistant',content:'I have your plan. What changes would you like?'},
+    ...editMessages
+  ];
+
+  try {
+    const updated=await callClaude(system,messages);
+    currentPlan=updated;
+    editMessages.push({role:'assistant',content:'Done! Your plan has been updated.'});
+    addChat('assistant','Done! Your plan has been updated.');
+    renderPlan(updated);
+  } catch(e) {
+    const err='Sorry, had trouble updating. Try rephrasing.';
+    editMessages.push({role:'assistant',content:err});
+    addChat('assistant',err);
+  } finally {
+    g('editBtn').disabled=false;g('editBtn').textContent='UPDATE';
+  }
+}
+
+function addChat(role,text) {
+  const ch=g('chatHistory'),d=document.createElement('div');
+  d.className=`chat-msg ${role}`;d.textContent=text;
+  ch.appendChild(d);ch.scrollTop=ch.scrollHeight;
+}
+
+function backToForm() {
+  g('planView').style.display='none';
+  g('formView').style.display='block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
+<!-- rate limit handling patch applied via proxy -->
