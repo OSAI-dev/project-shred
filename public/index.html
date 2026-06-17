@@ -199,8 +199,8 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-title">BUILDING YOUR 30-DAY PLAN</div>
-  <div class="loading-sub">Building your plan week by week — this takes about 60 seconds. Don't close this page.</div>
+  <div class="loading-title">BUILDING YOUR 7-DAY PLAN</div>
+  <div class="loading-sub">Building your meal plan — this takes about 20 seconds.</div>
   <div class="loading-bar"><div class="loading-fill"></div></div>
 </div>
 
@@ -218,10 +218,10 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 
     <div class="hero">
       <div class="eyebrow">Personalized Nutrition</div>
-      <h1 class="hero-title">YOUR CUSTOM<br><span>30-DAY</span><br>MEAL PLAN.</h1>
-      <p class="hero-sub">Fill in your details and get a full 30-day meal plan — 4 weeks of meals, every macro calculated, fully personalized to your goal and your body.</p>
+      <h1 class="hero-title">YOUR CUSTOM<br><span>7-DAY</span><br>MEAL PLAN.</h1>
+      <p class="hero-sub">Fill in your details and get a full 7-day meal plan — every macro calculated, fully personalized to your goal and your body.</p>
       <div class="hero-stats">
-        <div class="stat"><span class="stat-num">30</span><span class="stat-label">Day Plan</span></div>
+        <div class="stat"><span class="stat-num">7</span><span class="stat-label">Day Plan</span></div>
         <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Edits</span></div>
         <div class="stat"><span class="stat-num">PDF</span><span class="stat-label">Download</span></div>
       </div>
@@ -405,7 +405,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 
     <div style="padding-bottom:60px">
       <button class="btn btn-primary btn-full" id="generateBtn" onclick="generatePlan()">
-        GENERATE MY 30-DAY PLAN &nbsp;→
+        GENERATE MY 7-DAY PLAN &nbsp;→
       </button>
       <p style="font-size:12px;color:var(--gray);text-align:center;margin-top:12px">Takes about 30 seconds. Fully personalized.</p>
     </div>
@@ -418,7 +418,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
   <div class="container">
     <div class="plan-header">
       <div class="section-label">Your Plan</div>
-      <div class="section-title">30-DAY MEAL PLAN</div>
+      <div class="section-title">7-DAY MEAL PLAN</div>
       <div style="font-size:13px;color:var(--gray);margin-top:4px" id="planSubtitle"></div>
       <div class="plan-meta" id="planMeta"></div>
       <div class="plan-actions no-print">
@@ -433,7 +433,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
     <div class="shopping-section">
       <div class="section-label">Shopping List</div>
       <div class="section-title">WEEKLY GROCERIES</div>
-      <p style="font-size:13px;color:var(--gray);margin:8px 0 16px">Repeatable weekly shop — covers all 4 weeks.</p>
+      <p style="font-size:13px;color:var(--gray);margin:8px 0 16px">Everything you need for the week.</p>
       <div class="shopping-grid" id="shoppingGrid"></div>
     </div>
 
@@ -573,7 +573,7 @@ async function callClaude(system, messages) {
   const res = await fetch(API, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system,messages})
+    body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,system,messages})
   });
   const data = await res.json();
   if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)));
@@ -636,24 +636,16 @@ async function generatePlan() {
   const p = userProfile;
   const profileLine = `Name: ${p.name} | Age: ${p.age} | Gender: ${p.gender} | Weight: ${p.weight} | Height: ${p.height} | Activity: ${p.activity} | Goal: ${goalLabel} | Daily targets: ${finalCals} kcal, ${finalPro}g protein, ${finalCarb}g carbs, ${finalFat}g fat | Meals per day: ${mealsPerDay} | Cook time: ${p.cooktime||'no preference'} | Diet: ${p.diet||'no restrictions'} | Allergies: ${p.allergies||'none'} | Dislikes: ${p.dislikes||'none'} | Loves: ${p.loves||'none'} | Notes: ${p.notes||'none'}`;
 
-  const weekThemes = [
-    'Week 1 — Foundation: Simple, practical meals establishing the core pattern.',
-    'Week 2 — Build: Variations on Week 1 meals with different proteins and flavour profiles.',
-    'Week 3 — Variety: Introduce new dishes and cuisines while keeping macros identical.',
-    'Week 4 — Peak: The best-performing meals from previous weeks, refined.',
-  ];
-
   const system = `You are an elite sports nutritionist for Project Shred. ${goalInstructions}
 
 Daily macro targets to hit within 5%: ${finalCals} kcal | ${finalPro}g protein | ${finalCarb}g carbs | ${finalFat}g fat. Use ${mealsPerDay} meals per day.
 
-You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no explanation, no trailing commas. Start your response with { and end with }. Valid JSON only:
+You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no explanation, no trailing commas. Start your response with { and end with }:
 {
-  "week_number": 1,
-  "week_label": "Week 1 — Foundation",
+  "meals_per_day": 4,
   "days": [
     {
-      "day_name": "Day 1 — Monday",
+      "day_name": "Monday",
       "meals": [
         {
           "meal_name": "Breakfast",
@@ -668,31 +660,21 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no expl
       ],
       "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
     }
-  ]
+  ],
+  "shopping_list": ["item 1", "item 2"],
+  "tips": ["tip 1", "tip 2", "tip 3"]
 }
-Include all 7 days. No duplicate dishes across consecutive days.`;
+Include all 7 days Monday through Sunday. No duplicate dishes.`;
 
   try {
-    const weeks = [];
-    for (let w = 0; w < 4; w++) {
-      const dayOffset = w * 7;
-      const prevMeals = w > 0 ? `Meals already used in previous weeks: ${weeks.flatMap(wk => wk.days.flatMap(d => d.meals.map(m => m.dish))).join(', ')}. Do not repeat these.` : '';
-      const userMsg = `${profileLine}\n\n${weekThemes[w]}\n\nLabel days Day ${dayOffset+1} through Day ${dayOffset+7} with weekday names (Monday–Sunday).\n${prevMeals}`;
-      const week = await callClaude(system, [{role:'user', content: userMsg}]);
-      weeks.push(week);
-    }
-
-    // Final call for shopping list and tips
-    const shoppingSystem = `You are a sports nutritionist. Based on the meal plan provided, return ONLY a raw JSON object. No markdown, no backticks. Start with { end with }:
-{"shopping_list": ["item 1", "item 2"], "tips": ["tip 1", "tip 2", "tip 3"]}`;
-    const allDishes = weeks.flatMap(w => w.days.flatMap(d => d.meals.map(m => m.dish))).slice(0, 30).join(', ');
-    const extras = await callClaude(shoppingSystem, [{role:'user', content:`Meal plan dishes: ${allDishes}. Diet: ${p.diet||'none'}. Allergies: ${p.allergies||'none'}. Goal: ${goalLabel}.`}]);
+    const userMsg = `${profileLine}\n\nCreate a 7-day meal plan, Monday through Sunday.`;
+    const result = await callClaude(system, [{role:'user', content: userMsg}]);
 
     currentPlan = {
       meals_per_day: mealsPerDay,
-      weeks,
-      shopping_list: extras.shopping_list || [],
-      tips: extras.tips || [],
+      weeks: [{ week_number: 1, week_label: 'Your 7-Day Plan', days: result.days || [] }],
+      shopping_list: result.shopping_list || [],
+      tips: result.tips || [],
     };
 
     editMessages = [];
@@ -717,7 +699,7 @@ function renderPlan(plan) {
     <div class="meta-cell"><span class="meta-val">${p.carbs}g</span><span class="meta-lbl">Carbs</span></div>
     <div class="meta-cell"><span class="meta-val">${p.fat}g</span><span class="meta-lbl">Fat</span></div>
   `;
-  g('planSubtitle').textContent = `Built for ${p.name} · ${p.goalLabel} · ${plan.meals_per_day||'—'} meals/day · 30 days`;
+  g('planSubtitle').textContent = `Built for ${p.name} · ${p.goalLabel} · ${plan.meals_per_day||'—'} meals/day · 7 days`;
 
   const tabsEl = g('weekTabs');
   const panelsEl = g('weekPanels');
