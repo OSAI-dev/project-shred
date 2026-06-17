@@ -668,7 +668,8 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
           "calories": "480 kcal",
           "protein": "42g",
           "carbs": "38g",
-          "fat": "14g"
+          "fat": "14g",
+          "portions": ["200g chicken breast", "1 cup oats", "1 tbsp almond butter"]
         }
       ],
       "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
@@ -677,7 +678,7 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
   "shopping_list": ["item 1", "item 2"],
   "tips": ["tip 1", "tip 2"]
 }
-Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise.`;
+Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise. Portions must be specific with exact weights or measurements.`;
 
   try {
     const userMsg1 = `${profileLine}\n\nCreate meals for ONLY Day 1 Monday, Day 2 Tuesday, Day 3 Wednesday, Day 4 Thursday. Return JSON with just a "days" array containing exactly 4 days.`;
@@ -798,8 +799,7 @@ function renderMeal(meal,id) {
         <div class="macro-box"><div class="macro-label">Carbs</div><div class="macro-val">${meal.carbs}</div></div>
         <div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">${meal.fat}</div></div>
       </div>
-      ${meal.ingredients&&meal.ingredients.length?`<div class="detail-section"><div class="detail-title">Ingredients</div><ul class="ing-list">${meal.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul></div>`:''}
-      ${meal.prep?`<div class="detail-section"><div class="detail-title">Prep Notes</div><div class="prep-note">${meal.prep}</div></div>`:''}
+      ${meal.portions&&meal.portions.length?`<div class="detail-section"><div class="detail-title">Portions</div><ul class="ing-list">${meal.portions.map(i=>`<li>${i}</li>`).join('')}</ul></div>`:''}
     </div>
   </div>`;
 }
