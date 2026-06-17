@@ -175,12 +175,27 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 
 /* PRINT */
 @media print{
-  header,.hero,.plan-actions,.edit-section,.week-tabs,.no-print{display:none!important}
+  header,.hero,.plan-actions,.edit-section,.week-tabs,.no-print,.day-chevron,.meal-chevron{display:none!important}
   .day-body,.meal-detail,.week-panel{display:block!important}
+  .day-header,.meal-header{cursor:default}
   body{background:white;color:black}
-  .day-block,.meal-card{break-inside:avoid;border-color:#ddd}
-  .macro-box{background:#f5f5f5}
+  .day-block{border:1px solid #ddd;margin-bottom:16px;break-inside:avoid}
+  .day-header{background:#f5f5f5!important;padding:12px 16px}
+  .day-name{color:black;font-size:20px}
+  .meal-card{border:1px solid #eee;margin-top:8px;break-inside:avoid}
+  .meal-header{padding:10px 14px;background:white!important}
   .meal-type{color:#D32F2F}
+  .meal-dish{font-size:14px}
+  .meal-cals-num{font-size:14px}
+  .macro-box{background:#f9f9f9;border-left:2px solid #D32F2F;padding:8px}
+  .macro-row{gap:6px}
+  .meal-detail{padding:0 14px 12px;border-top:1px solid #eee}
+  .shopping-section{margin-top:20px}
+  .tips-section{background:#fff8f8;border-left:3px solid #D32F2F}
+  .plan-header{padding:20px 0}
+  .plan-meta{border:1px solid #ddd}
+  .meta-cell{background:white;padding:10px}
+  .meta-val{color:black}
 }
 
 @media(max-width:600px){
