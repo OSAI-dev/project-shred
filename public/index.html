@@ -640,7 +640,7 @@ async function generatePlan() {
 
 Daily macro targets to hit within 5%: ${finalCals} kcal | ${finalPro}g protein | ${finalCarb}g carbs | ${finalFat}g fat. Use ${mealsPerDay} meals per day.
 
-You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no explanation, no trailing commas. Start your response with { and end with }:
+You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trailing commas. Start with { end with }:
 {
   "meals_per_day": 4,
   "days": [
@@ -653,18 +653,16 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no expl
           "calories": "480 kcal",
           "protein": "42g",
           "carbs": "38g",
-          "fat": "14g",
-          "ingredients": ["200g chicken breast", "1 cup oats"],
-          "prep": "One sentence prep tip."
+          "fat": "14g"
         }
       ],
       "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
     }
   ],
   "shopping_list": ["item 1", "item 2"],
-  "tips": ["tip 1", "tip 2", "tip 3"]
+  "tips": ["tip 1", "tip 2"]
 }
-Include all 7 days Monday through Sunday. No duplicate dishes.`;
+Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise.`;
 
   try {
     const userMsg = `${profileLine}\n\nCreate a 7-day meal plan, Monday through Sunday.`;
