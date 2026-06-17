@@ -665,14 +665,19 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
 Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise.`;
 
   try {
-    const userMsg = `${profileLine}\n\nCreate a 7-day meal plan, Monday through Sunday.`;
-    const result = await callClaude(system, [{role:'user', content: userMsg}]);
+    const userMsg1 = `${profileLine}\n\nCreate meals for ONLY Day 1 Monday, Day 2 Tuesday, Day 3 Wednesday, Day 4 Thursday. Return JSON with just a "days" array containing exactly 4 days.`;
+    const userMsg2 = `${profileLine}\n\nCreate meals for ONLY Day 5 Friday, Day 6 Saturday, Day 7 Sunday. Also include shopping_list and tips arrays. Return JSON with "days", "shopping_list", and "tips".`;
+    
+    const result1 = await callClaude(system, [{role:'user', content: userMsg1}]);
+    const result2 = await callClaude(system, [{role:'user', content: userMsg2}]);
+
+    const allDays = [...(result1.days || []), ...(result2.days || [])];
 
     currentPlan = {
       meals_per_day: mealsPerDay,
-      weeks: [{ week_number: 1, week_label: 'Your 7-Day Plan', days: result.days || [] }],
-      shopping_list: result.shopping_list || [],
-      tips: result.tips || [],
+      weeks: [{ week_number: 1, week_label: 'Your 7-Day Plan', days: allDays }],
+      shopping_list: result2.shopping_list || [],
+      tips: result2.tips || [],
     };
 
     editMessages = [];
