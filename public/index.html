@@ -700,8 +700,7 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
           "protein": "42g",
           "carbs": "38g",
           "fat": "14g",
-          "portions": ["200g chicken breast", "1 cup white rice cooked", "1 tbsp olive oil"],
-          "instructions": ["Season chicken with salt and pepper.", "Heat olive oil in pan over medium-high heat.", "Cook chicken 6-7 mins each side until cooked through.", "Serve over rice."]
+          "portions": ["200g chicken breast", "1 cup white rice cooked", "1 tbsp olive oil"]
         }
       ],
       "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
@@ -841,7 +840,7 @@ function renderMeal(meal,id) {
         <div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">${meal.fat}</div></div>
       </div>
       ${meal.portions&&meal.portions.length?`<div class="detail-section"><div class="detail-title">Portions</div><ul class="ing-list">${meal.portions.map(i=>`<li>${i}</li>`).join('')}</ul></div>`:''}
-      ${meal.instructions&&meal.instructions.length?`<div class="detail-section"><div class="detail-title">How to Make It</div><ol class="ing-list" style="padding-left:4px">${meal.instructions.map((s,i)=>`<li style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--red);font-weight:700;flex-shrink:0">${i+1}.</span><span>${s}</span></li>`).join('')}</ol></div>`:''}
+      <div class="detail-section"><div class="detail-title">How to Make It</div><div id="instr-${id}" class="prep-note" style="cursor:pointer;color:var(--red)" onclick="loadInstructions('${id}', '${meal.dish}', '${meal.portions ? meal.portions.join(', ') : ''}')">Tap to load cooking instructions →</div></div>
     </div>
   </div>`;
 }
@@ -890,6 +889,39 @@ function addChat(role,text) {
   const ch=g('chatHistory'),d=document.createElement('div');
   d.className=`chat-msg ${role}`;d.textContent=text;
   ch.appendChild(d);ch.scrollTop=ch.scrollHeight;
+}
+
+async function loadInstructions(id, dish, portions) {
+  const el = document.getElementById('instr-' + id);
+  el.textContent = 'Loading...';
+  el.style.cursor = 'default';
+  el.style.color = 'var(--gray)';
+  el.onclick = null;
+  try {
+    const sys = 'You are a Project Shred nutritionist. Return ONLY a JSON object: {"steps": ["step 1", "step 2", "step 3", "step 4"]}. No markdown, no backticks.';
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 500,
+        system: sys,
+        messages: [{role: 'user', content: `Give me 4 simple cooking steps for: ${dish}. Ingredients/portions: ${portions}. Use only olive oil or animal fats for cooking.`}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    const parsed = JSON.parse(raw.slice(start, end + 1));
+    const steps = parsed.steps || [];
+    el.innerHTML = steps.map((s, i) => `<div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--red);font-weight:700;flex-shrink:0">${i+1}.</span><span>${s}</span></div>`).join('');
+    el.style.color = 'var(--gray-light)';
+  } catch(e) {
+    el.textContent = 'Could not load instructions. Try again.';
+    el.style.cursor = 'pointer';
+    el.style.color = 'var(--red)';
+  }
 }
 
 function backToForm() {
