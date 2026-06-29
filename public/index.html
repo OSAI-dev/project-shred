@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Project Shred — Meal Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -214,9 +214,12 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-title">BUILDING YOUR 7-DAY PLAN</div>
-  <div class="loading-sub">Building your meal plan — this takes about 20 seconds.</div>
-  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-title">BUILDING YOUR PLAN</div>
+  <div class="loading-sub" id="loadingMsg">Calculating your targets...</div>
+  <div style="width:240px;background:rgba(255,255,255,0.1);height:4px;margin-top:16px;border-radius:2px;overflow:hidden">
+    <div id="progressBar" style="height:100%;background:var(--red);width:0%;transition:width 0.6s ease;border-radius:2px"></div>
+  </div>
+  <div id="progressLabel" style="font-size:11px;color:var(--gray);margin-top:8px;letter-spacing:0.1em">0%</div>
 </div>
 
 <header>
@@ -695,7 +698,8 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
           "protein": "42g",
           "carbs": "38g",
           "fat": "14g",
-          "portions": ["200g chicken breast", "1 cup oats", "1 tbsp almond butter"]
+          "portions": ["200g chicken breast", "1 cup white rice cooked", "1 tbsp olive oil"],
+          "instructions": ["Season chicken with salt and pepper.", "Heat olive oil in pan over medium-high heat.", "Cook chicken 6-7 mins each side until cooked through.", "Serve over rice."]
         }
       ],
       "daily_totals": { "calories": "2090 kcal", "protein": "174g", "carbs": "193g", "fat": "61g" }
@@ -706,12 +710,21 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
 }
 Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise. Portions must be specific with exact weights or measurements.`;
 
+  function setProgress(pct, msg) {
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = pct + '%';
+    document.getElementById('loadingMsg').textContent = msg;
+  }
+
   try {
+    setProgress(10, 'Building Days 1-4...');
     const userMsg1 = `${profileLine}\n\nCreate meals for ONLY Day 1 Monday, Day 2 Tuesday, Day 3 Wednesday, Day 4 Thursday. Return JSON with just a "days" array containing exactly 4 days.`;
     const userMsg2 = `${profileLine}\n\nCreate meals for ONLY Day 5 Friday, Day 6 Saturday, Day 7 Sunday. Also include shopping_list and tips arrays. Return JSON with "days", "shopping_list", and "tips".`;
     
     const result1 = await callClaude(system, [{role:'user', content: userMsg1}]);
+    setProgress(55, 'Building Days 5-7...');
     const result2 = await callClaude(system, [{role:'user', content: userMsg2}]);
+    setProgress(90, 'Finishing up...');
 
     const allDays = [...(result1.days || []), ...(result2.days || [])];
 
@@ -826,6 +839,7 @@ function renderMeal(meal,id) {
         <div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">${meal.fat}</div></div>
       </div>
       ${meal.portions&&meal.portions.length?`<div class="detail-section"><div class="detail-title">Portions</div><ul class="ing-list">${meal.portions.map(i=>`<li>${i}</li>`).join('')}</ul></div>`:''}
+      ${meal.instructions&&meal.instructions.length?`<div class="detail-section"><div class="detail-title">How to Make It</div><ol class="ing-list" style="padding-left:4px">${meal.instructions.map((s,i)=>`<li style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--red);font-weight:700;flex-shrink:0">${i+1}.</span><span>${s}</span></li>`).join('')}</ol></div>`:''}
     </div>
   </div>`;
 }
