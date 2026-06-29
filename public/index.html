@@ -643,15 +643,41 @@ async function generatePlan() {
   setLoading(true);
 
   const goalInstructions = selectedGoal === 'fat_loss'
-    ? `Goal: FAT LOSS. Daily target is ${finalCals} kcal (${calcTargets.tdee - finalCals} kcal below maintenance). Keep meals filling and satisfying. Prioritize high volume, high protein foods.`
-    : `Goal: MUSCLE BUILDING. Daily target is ${finalCals} kcal (${finalCals - calcTargets.tdee} kcal above maintenance). Time carbs around training days. Prioritize nutrient density and recovery foods.`;
+    ? `Goal: FAT LOSS. Daily target is ${finalCals} kcal (${calcTargets.tdee - finalCals} kcal below maintenance). Prioritize anti-inflammatory foods. Keep meals filling and protein-forward.`
+    : `Goal: MUSCLE BUILDING. Daily target is ${finalCals} kcal (${finalCals - calcTargets.tdee} kcal above maintenance). Prioritize anti-inflammatory foods. Time carbs around training. Focus on recovery and hormonal support.`;
 
   const mealsPerDay = finalCals < 1800 ? 3 : finalCals < 2300 ? 4 : 5;
 
   const p = userProfile;
   const profileLine = `Name: ${p.name} | Age: ${p.age} | Gender: ${p.gender} | Weight: ${p.weight} | Height: ${p.height} | Activity: ${p.activity} | Goal: ${goalLabel} | Daily targets: ${finalCals} kcal, ${finalPro}g protein, ${finalCarb}g carbs, ${finalFat}g fat | Meals per day: ${mealsPerDay} | Cook time: ${p.cooktime||'no preference'} | Diet: ${p.diet||'no restrictions'} | Allergies: ${p.allergies||'none'} | Dislikes: ${p.dislikes||'none'} | Loves: ${p.loves||'none'} | Notes: ${p.notes||'none'}`;
 
-  const system = `You are an elite sports nutritionist for Project Shred. ${goalInstructions}
+  const system = `You are the Project Shred nutrition AI. You build meal plans based on the Project Shred philosophy: fat loss and body composition are a natural result of reducing inflammation and optimizing hormonal health — not just cutting calories.
+
+${goalInstructions}
+
+PROJECT SHRED NUTRITION RULES — FOLLOW EXACTLY:
+
+APPROVED PROTEINS: Steak, beef, ground beef, chicken breast, chicken thighs, turkey, eggs, fish, shrimp, seafood, Greek yogurt, yogurt, cheese.
+
+APPROVED CARBS: White rice, potatoes, sweet potatoes, all whole fruits. Sourdough bread is acceptable in moderation.
+
+APPROVED FATS: Avocado, olive oil, natural animal fats.
+
+STRICTLY AVOID — NEVER include these:
+- Seed oils (soybean, canola, corn, cottonseed, sunflower, safflower, vegetable oil)
+- Oats, wheat products, processed grains, crackers, commercial bread
+- Packaged/processed snack foods, fast food, processed frozen meals
+- Sugary beverages, sports drinks, sodas, sweetened coffees
+- Leafy greens as a meal foundation (kale, spinach, lettuce, arugula, spring mix) — do not build meals around these
+- Protein powder, protein bars, protein shakes — use whole food proteins only
+
+MEAL CONSTRUCTION RULES:
+- Every meal must contain a meaningful whole-food protein source
+- Prioritize anti-inflammatory foods at every meal
+- Prioritize digestibility and minimally processed foods
+- Carbs should come from white rice, potatoes, sweet potatoes, or fruit
+- Cook with olive oil or animal fats only — never seed oils
+- Build meals around macros, not calories — calories are a byproduct
 
 Daily macro targets to hit within 5%: ${finalCals} kcal | ${finalPro}g protein | ${finalCarb}g carbs | ${finalFat}g fat. Use ${mealsPerDay} meals per day.
 
