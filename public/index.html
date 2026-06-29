@@ -217,11 +217,11 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-title">BUILDING YOUR PLAN</div>
-  <div class="loading-sub" id="loadingMsg">Calculating your targets...</div>
-  <div style="width:240px;background:rgba(255,255,255,0.1);height:4px;margin-top:16px;border-radius:2px;overflow:hidden">
-    <div id="progressBar" style="height:100%;background:var(--red);width:0%;transition:width 0.6s ease;border-radius:2px"></div>
+  <div class="loading-sub" id="loadingMsg">This takes 1-2 minutes. Don't close this page.</div>
+  <div style="width:260px;background:rgba(255,255,255,0.1);height:4px;margin-top:20px;border-radius:2px;overflow:hidden">
+    <div id="progressBar" style="height:100%;background:var(--red);width:0%;border-radius:2px"></div>
   </div>
-  <div id="progressLabel" style="font-size:11px;color:var(--gray);margin-top:8px;letter-spacing:0.1em">0%</div>
+  <div id="progressLabel" style="font-size:11px;color:var(--gray);margin-top:10px;letter-spacing:0.1em">0%</div>
 </div>
 
 <header>
@@ -713,36 +713,53 @@ Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names c
 
   let progressInterval = null;
   let currentProgress = 0;
+  let targetProgress = 0;
 
-  function setProgress(pct, msg) {
+  function startSmoothProgress() {
     if (progressInterval) clearInterval(progressInterval);
-    document.getElementById('loadingMsg').textContent = msg;
-    // Animate smoothly to target
     progressInterval = setInterval(() => {
-      if (currentProgress < pct) {
-        currentProgress = Math.min(currentProgress + 1, pct);
-        document.getElementById('progressBar').style.width = currentProgress + '%';
-        document.getElementById('progressLabel').textContent = currentProgress + '%';
-      } else {
-        clearInterval(progressInterval);
+      if (currentProgress < targetProgress) {
+        currentProgress += 0.4;
+        if (currentProgress > targetProgress) currentProgress = targetProgress;
+        const bar = document.getElementById('progressBar');
+        const label = document.getElementById('progressLabel');
+        if (bar) bar.style.width = currentProgress.toFixed(1) + '%';
+        if (label) label.textContent = Math.floor(currentProgress) + '%';
       }
-    }, 30);
+    }, 80);
+  }
+
+  const messages = [
+    'Selecting your proteins and carbs...',
+    'Building Monday through Wednesday...',
+    'Building Thursday and Friday...',
+    'Building the weekend...',
+    'Calculating your macros...',
+    'Putting it all together...',
+    'Almost ready...'
+  ];
+  let msgIndex = 0;
+  let msgInterval = null;
+
+  function startMessages() {
+    msgInterval = setInterval(() => {
+      msgIndex = (msgIndex + 1) % messages.length;
+      const el = document.getElementById('loadingMsg');
+      if (el) el.textContent = messages[msgIndex];
+    }, 8000);
   }
 
   try {
-    setProgress(10, 'Building Days 1-4...');
-    // Slowly creep to 45% while waiting
-    setTimeout(() => { if (currentProgress < 45) setProgress(45, 'Building Days 1-4...'); }, 3000);
-    setTimeout(() => { if (currentProgress < 50) setProgress(50, 'Building Days 1-4...'); }, 8000);
+    targetProgress = 48;
+    startSmoothProgress();
+    startMessages();
     const userMsg1 = `${profileLine}\n\nCreate meals for ONLY Day 1 Monday, Day 2 Tuesday, Day 3 Wednesday, Day 4 Thursday. Return JSON with just a "days" array containing exactly 4 days.`;
     const userMsg2 = `${profileLine}\n\nCreate meals for ONLY Day 5 Friday, Day 6 Saturday, Day 7 Sunday. Also include shopping_list and tips arrays. Return JSON with "days", "shopping_list", and "tips".`;
     
     const result1 = await callClaude(system, [{role:'user', content: userMsg1}]);
-    setProgress(55, 'Building Days 5-7...');
-    setTimeout(() => { if (currentProgress < 75) setProgress(75, 'Building Days 5-7...'); }, 3000);
-    setTimeout(() => { if (currentProgress < 85) setProgress(85, 'Building Days 5-7...'); }, 8000);
+    targetProgress = 92;
     const result2 = await callClaude(system, [{role:'user', content: userMsg2}]);
-    setProgress(95, 'Almost done...');
+    targetProgress = 99;
 
     const allDays = [...(result1.days || []), ...(result2.days || [])];
 
@@ -754,6 +771,8 @@ Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names c
     };
 
     editMessages = [];
+    if (progressInterval) clearInterval(progressInterval);
+    if (msgInterval) clearInterval(msgInterval);
     renderPlan(currentPlan);
     g('formView').style.display = 'none';
     g('planView').style.display = 'block';
