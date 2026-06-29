@@ -711,21 +711,38 @@ You MUST respond with ONLY a raw JSON object. No markdown, no backticks, no trai
 }
 Include all 7 days Monday through Sunday. No duplicate dishes. Keep dish names concise. Portions must be specific with exact weights or measurements.`;
 
+  let progressInterval = null;
+  let currentProgress = 0;
+
   function setProgress(pct, msg) {
-    document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = pct + '%';
+    if (progressInterval) clearInterval(progressInterval);
     document.getElementById('loadingMsg').textContent = msg;
+    // Animate smoothly to target
+    progressInterval = setInterval(() => {
+      if (currentProgress < pct) {
+        currentProgress = Math.min(currentProgress + 1, pct);
+        document.getElementById('progressBar').style.width = currentProgress + '%';
+        document.getElementById('progressLabel').textContent = currentProgress + '%';
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 30);
   }
 
   try {
     setProgress(10, 'Building Days 1-4...');
+    // Slowly creep to 45% while waiting
+    setTimeout(() => { if (currentProgress < 45) setProgress(45, 'Building Days 1-4...'); }, 3000);
+    setTimeout(() => { if (currentProgress < 50) setProgress(50, 'Building Days 1-4...'); }, 8000);
     const userMsg1 = `${profileLine}\n\nCreate meals for ONLY Day 1 Monday, Day 2 Tuesday, Day 3 Wednesday, Day 4 Thursday. Return JSON with just a "days" array containing exactly 4 days.`;
     const userMsg2 = `${profileLine}\n\nCreate meals for ONLY Day 5 Friday, Day 6 Saturday, Day 7 Sunday. Also include shopping_list and tips arrays. Return JSON with "days", "shopping_list", and "tips".`;
     
     const result1 = await callClaude(system, [{role:'user', content: userMsg1}]);
     setProgress(55, 'Building Days 5-7...');
+    setTimeout(() => { if (currentProgress < 75) setProgress(75, 'Building Days 5-7...'); }, 3000);
+    setTimeout(() => { if (currentProgress < 85) setProgress(85, 'Building Days 5-7...'); }, 8000);
     const result2 = await callClaude(system, [{role:'user', content: userMsg2}]);
-    setProgress(90, 'Finishing up...');
+    setProgress(95, 'Almost done...');
 
     const allDays = [...(result1.days || []), ...(result2.days || [])];
 
