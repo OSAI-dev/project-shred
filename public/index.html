@@ -29,8 +29,8 @@ header{border-bottom:1px solid var(--rule);padding:20px 0;position:sticky;top:0;
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,8vw,88px);line-height:0.92;letter-spacing:0.02em;margin-bottom:20px}
 .hero-title span{color:var(--red)}
 .hero-sub{font-size:15px;color:var(--gray);line-height:1.75;max-width:520px;margin-bottom:32px}
-.hero-stats{display:flex;border:1px solid var(--rule)}
-.stat{padding:16px 24px;border-right:1px solid var(--rule);flex:1;text-align:center}
+.hero-stats{display:flex;border:1px solid var(--rule);width:100%}
+.stat{padding:12px 8px;border-right:1px solid var(--rule);flex:1;text-align:center;min-width:0}
 .stat:last-child{border-right:none}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red);display:block}
 .stat-label{font-size:10px;color:var(--gray);letter-spacing:0.14em;text-transform:uppercase}
@@ -240,7 +240,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
       <p class="hero-sub">Fill in your details and get a full 7-day meal plan — every macro calculated, fully personalized to your goal and your body.</p>
       <div class="hero-stats">
         <div class="stat"><span class="stat-num">7</span><span class="stat-label">Day Plan</span></div>
-        <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Edits</span></div>
+        <div class="stat"><span class="stat-num" style="font-family:Inter,sans-serif;font-size:22px">∞</span><span class="stat-label">Edits</span></div>
         <div class="stat"><span class="stat-num">PDF</span><span class="stat-label">Download</span></div>
       </div>
     </div>
